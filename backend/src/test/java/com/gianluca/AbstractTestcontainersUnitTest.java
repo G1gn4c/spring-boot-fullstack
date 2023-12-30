@@ -20,7 +20,7 @@ public abstract class AbstractTestcontainersUnitTest {
 	protected static final Faker FAKER = new Faker();
 
 	@Container
-	protected static final PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>("postgres:latest")
+	protected static final PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>("postgres:16.1")
 			.withDatabaseName("customer-repository-unit-test").withUsername("gianluca").withPassword("password");
 
 	@DynamicPropertySource
