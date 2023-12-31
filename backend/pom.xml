@@ -17,7 +17,7 @@
 	<properties>
 		<java.version>17</java.version>
 		<docker.username>gianlucavitto</docker.username>
-		<docker.image.name>gianlucavitto/spring-boot-example</docker.image.name>
+		<docker.image.name>spring-boot-example</docker.image.name>
 		<docker.image.tag></docker.image.tag>
 	</properties>
 	<dependencies>
