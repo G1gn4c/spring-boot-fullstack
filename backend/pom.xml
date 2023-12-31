@@ -14,11 +14,11 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>spring-boot-example</name>
 	<description>Demo project for Spring Boot</description>
-	<organization>
-		<name>gianlucavitto</name>
-	</organization>
 	<properties>
 		<java.version>17</java.version>
+		<docker.username>gianlucavitto</docker.username>
+		<docker.image.name>gianlucavitto/spring-boot-example</docker.image.name>
+		<docker.image.tag></docker.image.tag>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -138,8 +138,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!--
-			-->
 			<plugin>
 				<groupId>com.google.cloud.tools</groupId>
 				<artifactId>jib-maven-plugin</artifactId>
@@ -168,7 +166,7 @@
 					</from>
 					<to>
 						<image>
-							docker.io/${organization.name}/${project.artifactId}:${project.version}</image>
+							docker.io/${docker.username}/${docker.image.name}:${docker.image.tag}</image>
 						<tags>
 							<tag>latest</tag>
 						</tags>
