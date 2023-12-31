@@ -144,7 +144,7 @@
 				<version>3.4.0</version>
 				<executions>
 					<execution>
-						<phase>package</phase>
+						<phase>verify</phase>
 						<goals>
 							<goal>build</goal>
 						</goals>
