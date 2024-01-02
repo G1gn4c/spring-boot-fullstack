@@ -48,7 +48,7 @@ class CustomerServiceImplTest {
 	void testReadCustomerById() {
 		// Given
 		Long id = 1L;
-		Customer customer = new Customer(id, "Gianluca", "gianluca@example.com", 30);
+		Customer customer = new Customer(id, "Gianluca", "gianluca@example.com", 30, Gender.MALE);
 		when(this.customerJpaRepository.findById(id)).thenReturn(Optional.of(customer));
 
 		// When
@@ -74,7 +74,7 @@ class CustomerServiceImplTest {
 	@Test
 	void testCreateCustomer() {
 		// Given
-		Customer customer = new Customer(null, "Gianluca", "gianluca@example.com", 30);
+		Customer customer = new Customer(null, "Gianluca", "gianluca@example.com", 30, Gender.MALE);
 		when(this.customerJpaRepository.existsByEmail(customer.getEmail())).thenReturn(false);
 
 		// When
@@ -95,7 +95,7 @@ class CustomerServiceImplTest {
 	@Test
 	void testCreateCustomerFailure() {
 		// Given
-		Customer customer = new Customer(null, "Gianluca", "gianluca@example.com", 30);
+		Customer customer = new Customer(null, "Gianluca", "gianluca@example.com", 30, Gender.MALE);
 		when(this.customerJpaRepository.existsByEmail(customer.getEmail())).thenReturn(true);
 
 		// When
@@ -144,8 +144,8 @@ class CustomerServiceImplTest {
 	void testUpdateCustomerOnlyName() {
 		// Given
 		Long id = 1L;
-		Customer customer = new Customer(null, "Gianluca2", null, null);
-		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30);
+		Customer customer = new Customer(null, "Gianluca2", null, null, null);
+		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30, Gender.MALE);
 		when(this.customerJpaRepository.findById(id)).thenReturn(Optional.of(oldCustomer));
 		when(this.customerJpaRepository.existsByIdNotAndEmail(id, oldCustomer.getEmail())).thenReturn(false);
 
@@ -168,8 +168,8 @@ class CustomerServiceImplTest {
 	void testUpdateCustomerOnlyEmail() {
 		// Given
 		Long id = 1L;
-		Customer customer = new Customer(null, null, "gianluca@gmail.com", null);
-		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30);
+		Customer customer = new Customer(null, null, "gianluca@gmail.com", null, null);
+		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30, Gender.MALE);
 		when(this.customerJpaRepository.findById(id)).thenReturn(Optional.of(oldCustomer));
 		when(this.customerJpaRepository.existsByIdNotAndEmail(id, customer.getEmail())).thenReturn(false);
 
@@ -192,8 +192,8 @@ class CustomerServiceImplTest {
 	void testUpdateCustomerOnlyAge() {
 		// Given
 		Long id = 1L;
-		Customer customer = new Customer(null, null, null, 31);
-		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30);
+		Customer customer = new Customer(null, null, null, 31, null);
+		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30, Gender.MALE);
 		when(this.customerJpaRepository.findById(id)).thenReturn(Optional.of(oldCustomer));
 		when(this.customerJpaRepository.existsByIdNotAndEmail(id, oldCustomer.getEmail())).thenReturn(false);
 
@@ -216,8 +216,8 @@ class CustomerServiceImplTest {
 	void testUpdateCustomerFailureNoChanges() {
 		// Given
 		Long id = 1L;
-		Customer customer = new Customer(null, "Gianluca", "gianluca@example.com", 30);
-		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30);
+		Customer customer = new Customer(null, "Gianluca", "gianluca@example.com", 30, Gender.MALE);
+		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30, Gender.MALE);
 		when(this.customerJpaRepository.findById(id)).thenReturn(Optional.of(oldCustomer));
 
 		// When
@@ -233,8 +233,8 @@ class CustomerServiceImplTest {
 	void testUpdateCustomerFailureCheckEmail() {
 		// Given
 		Long id = 1L;
-		Customer customer = new Customer(null, "Gianluca2", null, null);
-		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30);
+		Customer customer = new Customer(null, "Gianluca2", null, null, null);
+		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30, Gender.MALE);
 		when(this.customerJpaRepository.findById(id)).thenReturn(Optional.of(oldCustomer));
 		when(this.customerJpaRepository.existsByIdNotAndEmail(id, oldCustomer.getEmail())).thenReturn(true);
 

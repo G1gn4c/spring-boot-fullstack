@@ -25,7 +25,7 @@ class CustomerJdbcRepositoryImplTest extends AbstractTestcontainersUnitTest {
 	@Test
 	void testSave() {
 		Customer customer = new Customer(null, FAKER.name().fullName(),
-				"%s-%s".formatted(FAKER.internet().safeEmailAddress(), UUID.randomUUID()), 20);
+				"%s-%s".formatted(FAKER.internet().safeEmailAddress(), UUID.randomUUID()), 20, Gender.MALE);
 		int result = this.customerJdbcRepositoryImpl.save(customer);
 		assertThat(result).isEqualTo(1);
 	}
@@ -33,7 +33,7 @@ class CustomerJdbcRepositoryImplTest extends AbstractTestcontainersUnitTest {
 	@Test
 	void testFindAll() {
 		Customer customer = new Customer(null, FAKER.name().fullName(),
-				"%s-%s".formatted(FAKER.internet().safeEmailAddress(), UUID.randomUUID()), 20);
+				"%s-%s".formatted(FAKER.internet().safeEmailAddress(), UUID.randomUUID()), 20, Gender.MALE);
 		this.customerJdbcRepositoryImpl.save(customer);
 		List<Customer> customers = this.customerJdbcRepositoryImpl.findAll();
 		assertThat(customers).isNotEmpty();
@@ -42,7 +42,7 @@ class CustomerJdbcRepositoryImplTest extends AbstractTestcontainersUnitTest {
 	@Test
 	void testFindById() {
 		Customer customer = new Customer(null, FAKER.name().fullName(),
-				"%s-%s".formatted(FAKER.internet().safeEmailAddress(), UUID.randomUUID()), 20);
+				"%s-%s".formatted(FAKER.internet().safeEmailAddress(), UUID.randomUUID()), 20, Gender.MALE);
 		this.customerJdbcRepositoryImpl.save(customer);
 		Long id = this.customerJdbcRepositoryImpl.findAll().stream()
 				.filter(t -> t.getEmail().equals(customer.getEmail())).findFirst().get().getId();
@@ -65,7 +65,7 @@ class CustomerJdbcRepositoryImplTest extends AbstractTestcontainersUnitTest {
 	@Test
 	void testExistsByEmail() {
 		Customer customer = new Customer(null, FAKER.name().fullName(),
-				"%s-%s".formatted(FAKER.internet().safeEmailAddress(), UUID.randomUUID()), 20);
+				"%s-%s".formatted(FAKER.internet().safeEmailAddress(), UUID.randomUUID()), 20, Gender.MALE);
 		this.customerJdbcRepositoryImpl.save(customer);
 		boolean result = this.customerJdbcRepositoryImpl.existsByEmail(customer.getEmail());
 		assertThat(result).isTrue();
@@ -74,7 +74,7 @@ class CustomerJdbcRepositoryImplTest extends AbstractTestcontainersUnitTest {
 	@Test
 	void testExistsById() {
 		Customer customer = new Customer(null, FAKER.name().fullName(),
-				"%s-%s".formatted(FAKER.internet().safeEmailAddress(), UUID.randomUUID()), 20);
+				"%s-%s".formatted(FAKER.internet().safeEmailAddress(), UUID.randomUUID()), 20, Gender.MALE);
 		this.customerJdbcRepositoryImpl.save(customer);
 		Long id = this.customerJdbcRepositoryImpl.findAll().stream()
 				.filter(t -> t.getEmail().equals(customer.getEmail())).findFirst().get().getId();
@@ -85,7 +85,7 @@ class CustomerJdbcRepositoryImplTest extends AbstractTestcontainersUnitTest {
 	@Test
 	void testDeleteById() {
 		Customer customer = new Customer(null, FAKER.name().fullName(),
-				"%s-%s".formatted(FAKER.internet().safeEmailAddress(), UUID.randomUUID()), 20);
+				"%s-%s".formatted(FAKER.internet().safeEmailAddress(), UUID.randomUUID()), 20, Gender.MALE);
 		this.customerJdbcRepositoryImpl.save(customer);
 		Long id = this.customerJdbcRepositoryImpl.findAll().stream()
 				.filter(t -> t.getEmail().equals(customer.getEmail())).findFirst().get().getId();
@@ -97,7 +97,7 @@ class CustomerJdbcRepositoryImplTest extends AbstractTestcontainersUnitTest {
 	@Test
 	void testExistsByIdNotAndEmail() {
 		Customer customer = new Customer(null, FAKER.name().fullName(),
-				"%s-%s".formatted(FAKER.internet().safeEmailAddress(), UUID.randomUUID()), 20);
+				"%s-%s".formatted(FAKER.internet().safeEmailAddress(), UUID.randomUUID()), 20, Gender.MALE);
 		this.customerJdbcRepositoryImpl.save(customer);
 		Long id = this.customerJdbcRepositoryImpl.findAll().stream()
 				.filter(t -> t.getEmail().equals(customer.getEmail())).findFirst().get().getId();
