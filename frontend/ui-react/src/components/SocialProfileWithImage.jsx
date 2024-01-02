@@ -11,6 +11,8 @@ import {
     Stack,
     Button,
     useColorModeValue,
+    transform,
+    useDisclosure,
 } from '@chakra-ui/react'
 
 import {
@@ -20,17 +22,36 @@ import {
     TagRightIcon,
     TagCloseButton,
 } from '@chakra-ui/react'
+import React from 'react';
 
-export default function SocialProfileWithImage({ id, name, email, age, gender }) {
+import {
+    AlertDialog,
+    AlertDialogBody,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogContent,
+    AlertDialogOverlay,
+    AlertDialogCloseButton,
+} from '@chakra-ui/react'
+
+import { deleteCustomer } from '../services/client.js'
+import { successNotification, errorNotification } from '../services/notification.js'
+import CustomerUpdateDrawerForm from './CustomerUpdateDrawerForm.jsx';
+
+export default function SocialProfileWithImage({ id, name, email, age, gender, fetchCustomers }) {
     let ranmdomGender = gender === "MALE" ? "men" : "women";
+    const { isOpen, onOpen, onClose } = useDisclosure()
+    const cancelRef = React.useRef()
 
     return (
         <Center py={6}>
             <Box
                 maxW={'300px'}
+                minW={"300px"}
                 w={'full'}
+                m={2}
                 bg={useColorModeValue('white', 'gray.800')}
-                boxShadow={'2xl'}
+                boxShadow={'lg'}
                 rounded={'md'}
                 overflow={'hidden'}>
                 <Image
@@ -64,7 +85,74 @@ export default function SocialProfileWithImage({ id, name, email, age, gender })
                         <Text color={'gray.500'}>Age {age} | {gender}</Text>
                     </Stack>
                 </Box>
+                <Stack direction={"row"} justify={"center"} spacing={6} p={4}>
+                    <Stack>
+                        <CustomerUpdateDrawerForm
+                            fetchCustomers={fetchCustomers}
+                            initialValues={{ id, name, email, age, gender }}
+                        >
+                        </CustomerUpdateDrawerForm>
+                    </Stack>
+                    <Stack>
+                        <Button
+                            bg={"red.400"}
+                            color={"white"}
+                            rounded={"full"}
+                            _hover={{
+                                transform: "translateY(-2px)",
+                                boxShadow: "lg"
+                            }}
+                            _focus={{
+                                bg: "grey.500"
+                            }}
+                            onClick={onOpen}
+                        >
+                            Delete
+                        </Button>
+                        <AlertDialog
+                            isOpen={isOpen}
+                            leastDestructiveRef={cancelRef}
+                            onClose={onClose}
+                        >
+                            <AlertDialogOverlay>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+                                        Delete Customer
+                                    </AlertDialogHeader>
+
+                                    <AlertDialogBody>
+                                        Are you sure yopu want to delete {name}? You can't undo this action afterwards.
+                                    </AlertDialogBody>
+
+                                    <AlertDialogFooter>
+                                        <Button ref={cancelRef} onClick={onClose}>
+                                            Cancel
+                                        </Button>
+                                        <Button colorScheme='red' onClick={() => {
+                                            deleteCustomer(id)
+                                                .then(res => {
+                                                    console.log(res);
+                                                    successNotification("Customer deleted", `${name} was successfully deleted`);
+                                                    fetchCustomers();
+                                                })
+                                                .catch(err => {
+                                                    console.log(err);
+                                                    errorNotification(err.code, err.response.data.message);
+                                                })
+                                                .finally(() => {
+                                                    onClose();
+                                                });
+                                        }}
+                                            ml={3}>
+                                            Delete
+                                        </Button>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialogOverlay>
+                        </AlertDialog>
+                    </Stack>
+                </Stack>
             </Box>
-        </Center>
+        </Center >
     )
 }

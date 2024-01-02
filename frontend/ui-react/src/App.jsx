@@ -4,13 +4,16 @@ import { getCustomers } from "./services/client";
 import { Spinner, Text } from '@chakra-ui/react'
 import SocialProfileWithImage from "./components/SocialProfileWithImage";
 import { Wrap, WrapItem } from '@chakra-ui/react'
+import DrawerForm from "./components/DrawerForm";
+import { errorNotification } from "./services/notification";
 
 function App() {
 
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [err, setError] = useState("");
 
-  useEffect(() => {
+  function fetchCustomers() {
     setLoading(true);
     getCustomers()
       .then(res => {
@@ -18,10 +21,15 @@ function App() {
       })
       .catch(err => {
         console.log(err);
+        errorNotification(err.code, err.response.data.message);
       })
       .finally(() => {
         setLoading(false);
       });
+  }
+
+  useEffect(() => {
+    fetchCustomers();
   }, []);
 
   if (loading) {
@@ -38,16 +46,36 @@ function App() {
     );
   }
 
+  if (err) {
+    return (
+      <SidebarWithHeader>
+        <DrawerForm
+          fetchCustomers={fetchCustomers}
+        >
+        </DrawerForm>
+        <Text mt={5}>Ops! There was an error</Text>
+      </SidebarWithHeader>
+    );
+  }
+
   if (customers.length <= 0) {
     return (
       <SidebarWithHeader>
-        <Text>No customers available</Text>
+        <DrawerForm
+          fetchCustomers={fetchCustomers}
+        >
+        </DrawerForm>
+        <Text mt={5}>No customers available</Text>
       </SidebarWithHeader>
     );
   }
 
   return (
     <SidebarWithHeader>
+      <DrawerForm
+        fetchCustomers={fetchCustomers}
+      >
+      </DrawerForm>
       <Wrap justify={"center"} spacing={"30px"}>
         {
           customers.map((customer, index, customers) => {
@@ -55,6 +83,7 @@ function App() {
               <WrapItem key={index}>
                 <SocialProfileWithImage
                   {...customer}
+                  fetchCustomers={fetchCustomers}
                 ></SocialProfileWithImage>
               </WrapItem>
             );
