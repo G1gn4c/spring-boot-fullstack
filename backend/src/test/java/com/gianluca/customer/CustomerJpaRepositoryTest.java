@@ -27,7 +27,7 @@ class CustomerJpaRepositoryTest extends AbstractTestcontainersUnitTest {
 	@Test
 	void testExistsByEmail() {
 		Customer customer = new Customer(null, FAKER.name().fullName(),
-				"%s-%s".formatted(FAKER.internet().safeEmailAddress(), UUID.randomUUID()), 20, Gender.MALE);
+				"%s-%s".formatted(FAKER.internet().safeEmailAddress(), UUID.randomUUID()), 20, Gender.MALE, "password");
 		this.customerJpaRepository.save(customer);
 		boolean result = this.customerJpaRepository.existsByEmail(customer.getEmail());
 		assertThat(result).isTrue();
@@ -36,7 +36,7 @@ class CustomerJpaRepositoryTest extends AbstractTestcontainersUnitTest {
 	@Test
 	void testExistsByIdNotAndEmail() {
 		Customer customer = new Customer(null, FAKER.name().fullName(),
-				"%s-%s".formatted(FAKER.internet().safeEmailAddress(), UUID.randomUUID()), 20, Gender.MALE);
+				"%s-%s".formatted(FAKER.internet().safeEmailAddress(), UUID.randomUUID()), 20, Gender.MALE, "password");
 		Long id = this.customerJpaRepository.save(customer).getId();
 		boolean result = this.customerJpaRepository.existsByIdNotAndEmail(id, customer.getEmail());
 		assertThat(result).isFalse();

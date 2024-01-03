@@ -18,6 +18,7 @@ public class CustomerRowMapper implements RowMapper<Customer> {
 		customer.setAge(rs.getInt("age"));
 		String gender = rs.getString("gender");
 		customer.setGender(Gender.valueOf(gender));
+		customer.setPassword(rs.getString("password"));
 		return customer;
 	}
 

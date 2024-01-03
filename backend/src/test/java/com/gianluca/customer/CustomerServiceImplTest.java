@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.gianluca.exception.CustomerEmailAlreadyExistsException;
 import com.gianluca.exception.CustomerNoFieldChangeException;
@@ -30,9 +31,13 @@ class CustomerServiceImplTest {
 	@Mock
 	private CustomerJdbcRepository customerJdbcRepository;
 
+	@Mock
+	private PasswordEncoder passwordEncoder;
+
 	@BeforeEach
 	void setUp() throws Exception {
-		this.customerServiceImpl = new CustomerServiceImpl(customerJpaRepository, customerJdbcRepository);
+		this.customerServiceImpl = new CustomerServiceImpl(customerJpaRepository, customerJdbcRepository,
+				passwordEncoder);
 	}
 
 	@Test
@@ -48,7 +53,7 @@ class CustomerServiceImplTest {
 	void testReadCustomerById() {
 		// Given
 		Long id = 1L;
-		Customer customer = new Customer(id, "Gianluca", "gianluca@example.com", 30, Gender.MALE);
+		Customer customer = new Customer(id, "Gianluca", "gianluca@example.com", 30, Gender.MALE, "password");
 		when(this.customerJpaRepository.findById(id)).thenReturn(Optional.of(customer));
 
 		// When
@@ -74,8 +79,10 @@ class CustomerServiceImplTest {
 	@Test
 	void testCreateCustomer() {
 		// Given
-		Customer customer = new Customer(null, "Gianluca", "gianluca@example.com", 30, Gender.MALE);
+		Customer customer = new Customer(null, "Gianluca", "gianluca@example.com", 30, Gender.MALE, "password");
 		when(this.customerJpaRepository.existsByEmail(customer.getEmail())).thenReturn(false);
+		String hashPassword = "qwertyuiop";
+		when(this.passwordEncoder.encode(customer.getPassword())).thenReturn(hashPassword);
 
 		// When
 		this.customerServiceImpl.createCustomer(customer);
@@ -90,12 +97,13 @@ class CustomerServiceImplTest {
 		assertThat(customerPassedToSave.getName()).isEqualTo(customer.getName());
 		assertThat(customerPassedToSave.getEmail()).isEqualTo(customer.getEmail());
 		assertThat(customerPassedToSave.getAge()).isEqualTo(customer.getAge());
+		assertThat(customerPassedToSave.getPassword()).isEqualTo(hashPassword);
 	}
 
 	@Test
 	void testCreateCustomerFailure() {
 		// Given
-		Customer customer = new Customer(null, "Gianluca", "gianluca@example.com", 30, Gender.MALE);
+		Customer customer = new Customer(null, "Gianluca", "gianluca@example.com", 30, Gender.MALE, "password");
 		when(this.customerJpaRepository.existsByEmail(customer.getEmail())).thenReturn(true);
 
 		// When
@@ -144,8 +152,8 @@ class CustomerServiceImplTest {
 	void testUpdateCustomerOnlyName() {
 		// Given
 		Long id = 1L;
-		Customer customer = new Customer(null, "Gianluca2", null, null, null);
-		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30, Gender.MALE);
+		Customer customer = new Customer(null, "Gianluca2", null, null, null, "password");
+		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30, Gender.MALE, "password");
 		when(this.customerJpaRepository.findById(id)).thenReturn(Optional.of(oldCustomer));
 		when(this.customerJpaRepository.existsByIdNotAndEmail(id, oldCustomer.getEmail())).thenReturn(false);
 
@@ -168,8 +176,8 @@ class CustomerServiceImplTest {
 	void testUpdateCustomerOnlyEmail() {
 		// Given
 		Long id = 1L;
-		Customer customer = new Customer(null, null, "gianluca@gmail.com", null, null);
-		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30, Gender.MALE);
+		Customer customer = new Customer(null, null, "gianluca@gmail.com", null, null, "password");
+		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30, Gender.MALE, "password");
 		when(this.customerJpaRepository.findById(id)).thenReturn(Optional.of(oldCustomer));
 		when(this.customerJpaRepository.existsByIdNotAndEmail(id, customer.getEmail())).thenReturn(false);
 
@@ -192,8 +200,8 @@ class CustomerServiceImplTest {
 	void testUpdateCustomerOnlyAge() {
 		// Given
 		Long id = 1L;
-		Customer customer = new Customer(null, null, null, 31, null);
-		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30, Gender.MALE);
+		Customer customer = new Customer(null, null, null, 31, null, "password");
+		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30, Gender.MALE, "password");
 		when(this.customerJpaRepository.findById(id)).thenReturn(Optional.of(oldCustomer));
 		when(this.customerJpaRepository.existsByIdNotAndEmail(id, oldCustomer.getEmail())).thenReturn(false);
 
@@ -216,8 +224,8 @@ class CustomerServiceImplTest {
 	void testUpdateCustomerFailureNoChanges() {
 		// Given
 		Long id = 1L;
-		Customer customer = new Customer(null, "Gianluca", "gianluca@example.com", 30, Gender.MALE);
-		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30, Gender.MALE);
+		Customer customer = new Customer(null, "Gianluca", "gianluca@example.com", 30, Gender.MALE, "password");
+		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30, Gender.MALE, "password");
 		when(this.customerJpaRepository.findById(id)).thenReturn(Optional.of(oldCustomer));
 
 		// When
@@ -233,8 +241,8 @@ class CustomerServiceImplTest {
 	void testUpdateCustomerFailureCheckEmail() {
 		// Given
 		Long id = 1L;
-		Customer customer = new Customer(null, "Gianluca2", null, null, null);
-		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30, Gender.MALE);
+		Customer customer = new Customer(null, "Gianluca2", null, null, null, "password");
+		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30, Gender.MALE, "password");
 		when(this.customerJpaRepository.findById(id)).thenReturn(Optional.of(oldCustomer));
 		when(this.customerJpaRepository.existsByIdNotAndEmail(id, oldCustomer.getEmail())).thenReturn(true);
 

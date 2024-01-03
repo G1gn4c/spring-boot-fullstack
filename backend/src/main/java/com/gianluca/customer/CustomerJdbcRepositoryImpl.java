@@ -26,18 +26,18 @@ public class CustomerJdbcRepositoryImpl implements CustomerJdbcRepository {
 	@Override
 	public int save(Customer customer) {
 		String sql = """
-				INSERT INTO customer (id, name, email, age, gender)
-				VALUES (nextval('customer_id_seq'), ?, ?, ?, ?)
+				INSERT INTO customer (id, name, email, age, gender, password)
+				VALUES (nextval('customer_id_seq'), ?, ?, ?, ?, ?)
 				""";
 		LOGGER.info("sql {} with params {}", sql, customer);
 		return this.jdbcTemplate.update(sql, customer.getName(), customer.getEmail(), customer.getAge(),
-				customer.getGender().name());
+				customer.getGender().name(), customer.getPassword());
 	}
 
 	@Override
 	public List<Customer> findAll() {
 		String sql = """
-				SELECT id, name, email, age, gender
+				SELECT id, name, email, age, gender, password
 				FROM customer
 				""";
 		LOGGER.info("sql {}", sql);
@@ -47,7 +47,7 @@ public class CustomerJdbcRepositoryImpl implements CustomerJdbcRepository {
 	@Override
 	public Optional<Customer> findById(Long id) {
 		String sql = """
-				SELECT id, name, email, age, gender
+				SELECT id, name, email, age, gender, password
 				FROM customer
 				WHERE id = ?
 				""";

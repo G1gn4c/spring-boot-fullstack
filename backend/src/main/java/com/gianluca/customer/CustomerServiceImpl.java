@@ -2,6 +2,7 @@ package com.gianluca.customer;
 
 import java.util.List;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,18 +17,21 @@ public class CustomerServiceImpl implements CustomerService {
 
 	private final CustomerJdbcRepository customerJdbcRepository;
 
+	private final PasswordEncoder passwordEncoder;
+
 	public CustomerServiceImpl(CustomerJpaRepository customerJpaRepository,
-			CustomerJdbcRepository customerJdbcRepository) {
+			CustomerJdbcRepository customerJdbcRepository, PasswordEncoder passwordEncoder) {
 		super();
 		this.customerJpaRepository = customerJpaRepository;
 		this.customerJdbcRepository = customerJdbcRepository;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public List<Customer> readCustomers() {
 		return this.customerJpaRepository.findAll();
-//		return this.customerJdbcRepository.findAll();
+		// return this.customerJdbcRepository.findAll();
 	}
 
 	@Override
@@ -35,8 +39,9 @@ public class CustomerServiceImpl implements CustomerService {
 	public Customer readCustomerById(Long id) {
 		return this.customerJpaRepository.findById(id)
 				.orElseThrow(() -> new CustomerNotFoundException("Customer with id [%s] not found".formatted(id)));
-//		return this.customerJdbcRepository.findById(id)
-//				.orElseThrow(() -> new CustomerNotFoundException("Customer with id [%s] not found".formatted(id)));
+		// return this.customerJdbcRepository.findById(id)
+		// .orElseThrow(() -> new CustomerNotFoundException("Customer with id [%s] not
+		// found".formatted(id)));
 	}
 
 	@Override
@@ -46,11 +51,13 @@ public class CustomerServiceImpl implements CustomerService {
 		if (this.customerJpaRepository.existsByEmail(email)) {
 			throw new CustomerEmailAlreadyExistsException("Customer with email [%s] already exists".formatted(email));
 		}
+		customer.setPassword(this.passwordEncoder.encode(customer.getPassword()));
 		return this.customerJpaRepository.save(customer);
-//		if (this.customerJdbcRepository.existsByEmail(email)) {
-//			throw new CustomerEmailAlreadyExistsException("Customer with email [%s] already exists".formatted(email));
-//		}
-//		return this.customerJpaRepository.save(customer);
+		// if (this.customerJdbcRepository.existsByEmail(email)) {
+		// throw new CustomerEmailAlreadyExistsException("Customer with email [%s]
+		// already exists".formatted(email));
+		// }
+		// return this.customerJpaRepository.save(customer);
 	}
 
 	@Override
@@ -60,10 +67,11 @@ public class CustomerServiceImpl implements CustomerService {
 			throw new CustomerNotFoundException("Customer with id [%s] not found".formatted(id));
 		}
 		this.customerJpaRepository.deleteById(id);
-//		if (!this.customerJdbcRepository.existsById(id)) {
-//			throw new CustomerNotFoundException("Customer with id [%s] not found".formatted(id));
-//		}
-//		this.customerJdbcRepository.deleteById(id);
+		// if (!this.customerJdbcRepository.existsById(id)) {
+		// throw new CustomerNotFoundException("Customer with id [%s] not
+		// found".formatted(id));
+		// }
+		// this.customerJdbcRepository.deleteById(id);
 	}
 
 	@Override
@@ -79,6 +87,12 @@ public class CustomerServiceImpl implements CustomerService {
 		if (customer.getAge() == null) {
 			customer.setAge(oldCustomer.getAge());
 		}
+		if (customer.getGender() == null) {
+			customer.setGender(oldCustomer.getGender());
+		}
+		if (customer.getPassword() == null) {
+			customer.setPassword(oldCustomer.getPassword());
+		}
 		if (customer.getName().equals(oldCustomer.getName()) && customer.getEmail().equals(oldCustomer.getEmail())
 				&& customer.getAge().equals(oldCustomer.getAge())) {
 			throw new CustomerNoFieldChangeException("The new customer has the same values of the old one");
@@ -87,10 +101,11 @@ public class CustomerServiceImpl implements CustomerService {
 			throw new CustomerEmailAlreadyExistsException(
 					"Customer with email [%s] already exists".formatted(customer.getEmail()));
 		}
-//		if (this.customerJdbcRepository.existsByIdNotAndEmail(id, customer.getEmail())) {
-//			throw new CustomerEmailAlreadyExistsException(
-//					"Customer with email [%s] already exists".formatted(customer.getEmail()));
-//		}
+		// if (this.customerJdbcRepository.existsByIdNotAndEmail(id,
+		// customer.getEmail())) {
+		// throw new CustomerEmailAlreadyExistsException(
+		// "Customer with email [%s] already exists".formatted(customer.getEmail()));
+		// }
 		customer.setId(oldCustomer.getId());
 		return this.customerJpaRepository.save(customer);
 	}

@@ -35,7 +35,7 @@ class CustomerControllerTest extends AbstractTestcontainersUnitTest {
 		String name = "%s %s".formatted(firstName, lastName);
 		String email = "%s.%s.%s@example.com".formatted(firstName, lastName, UUID.randomUUID());
 		Integer age = RANDOM.nextInt(1, 100);
-		Customer customer = new Customer(null, name, email, age, Gender.MALE);
+		Customer customer = new Customer(null, name, email, age, Gender.MALE, "password");
 
 		this.webTestClient.post().uri(CUSTOMER_URI).accept(MediaType.APPLICATION_JSON)
 				.contentType(MediaType.APPLICATION_JSON).body(Mono.just(customer), Customer.class).exchange()
@@ -63,7 +63,7 @@ class CustomerControllerTest extends AbstractTestcontainersUnitTest {
 		String name = "%s %s".formatted(firstName, lastName);
 		String email = "%s.%s.%s@example.com".formatted(firstName, lastName, UUID.randomUUID());
 		Integer age = RANDOM.nextInt(1, 100);
-		Customer customer = new Customer(null, name, email, age, Gender.MALE);
+		Customer customer = new Customer(null, name, email, age, Gender.MALE, "password");
 
 		this.webTestClient.post().uri(CUSTOMER_URI).accept(MediaType.APPLICATION_JSON)
 				.contentType(MediaType.APPLICATION_JSON).body(Mono.just(customer), Customer.class).exchange()
@@ -90,7 +90,7 @@ class CustomerControllerTest extends AbstractTestcontainersUnitTest {
 		String name = "%s %s".formatted(firstName, lastName);
 		String email = "%s.%s.%s@example.com".formatted(firstName, lastName, UUID.randomUUID());
 		Integer age = RANDOM.nextInt(1, 100);
-		Customer customer = new Customer(null, name, email, age, Gender.MALE);
+		Customer customer = new Customer(null, name, email, age, Gender.MALE, "password");
 
 		this.webTestClient.post().uri(CUSTOMER_URI).accept(MediaType.APPLICATION_JSON)
 				.contentType(MediaType.APPLICATION_JSON).body(Mono.just(customer), Customer.class).exchange()
@@ -103,7 +103,7 @@ class CustomerControllerTest extends AbstractTestcontainersUnitTest {
 		Long id = customers.stream().filter(t -> t.getEmail().equals(email)).map(t -> t.getId()).findFirst()
 				.orElseThrow();
 
-		Customer customerUpdated = new Customer(null, name + "2", email + "2", age - 1, Gender.FEMALE);
+		Customer customerUpdated = new Customer(null, name + "2", email + "2", age - 1, Gender.FEMALE, "password");
 
 		this.webTestClient.put().uri(CUSTOMER_URI + "/{id}", id).accept(MediaType.APPLICATION_JSON)
 				.contentType(MediaType.APPLICATION_JSON).body(Mono.just(customerUpdated), Customer.class).exchange()
