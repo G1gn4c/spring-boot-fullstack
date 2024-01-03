@@ -27,6 +27,19 @@ services:
       - db
     restart: unless-stopped
     
+  frontend-react:
+    container_name: frontend-react
+    image: gianlucavitto/ui-react
+    build:
+      context: frontend/ui-react
+      args:
+        api_base_url: http://localhost:8088
+    ports:
+      - "3000:5173"
+    depends_on:
+      - spring-boot-example
+    restart: unless-stopped
+    
 networks:
   db:
     driver: bridge
