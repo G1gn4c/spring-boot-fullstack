@@ -1,6 +1,7 @@
 package com.gianluca.customer;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,25 +20,29 @@ public class CustomerServiceImpl implements CustomerService {
 
 	private final PasswordEncoder passwordEncoder;
 
+	private final CustomerDTOMapper customerDTOMapper;
+
 	public CustomerServiceImpl(CustomerJpaRepository customerJpaRepository,
-			CustomerJdbcRepository customerJdbcRepository, PasswordEncoder passwordEncoder) {
+			CustomerJdbcRepository customerJdbcRepository, PasswordEncoder passwordEncoder,
+			CustomerDTOMapper customerDTOMapper) {
 		super();
 		this.customerJpaRepository = customerJpaRepository;
 		this.customerJdbcRepository = customerJdbcRepository;
 		this.passwordEncoder = passwordEncoder;
+		this.customerDTOMapper = customerDTOMapper;
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<Customer> readCustomers() {
-		return this.customerJpaRepository.findAll();
+	public List<CustomerDTO> readCustomers() {
+		return this.customerJpaRepository.findAll().stream().map(this.customerDTOMapper).collect(Collectors.toList());
 		// return this.customerJdbcRepository.findAll();
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public Customer readCustomerById(Long id) {
-		return this.customerJpaRepository.findById(id)
+	public CustomerDTO readCustomerById(Long id) {
+		return this.customerJpaRepository.findById(id).map(this.customerDTOMapper)
 				.orElseThrow(() -> new CustomerNotFoundException("Customer with id [%s] not found".formatted(id)));
 		// return this.customerJdbcRepository.findById(id)
 		// .orElseThrow(() -> new CustomerNotFoundException("Customer with id [%s] not
@@ -46,13 +51,14 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public Customer createCustomer(Customer customer) {
+	public CustomerDTO createCustomer(Customer customer) {
 		String email = customer.getEmail();
 		if (this.customerJpaRepository.existsByEmail(email)) {
 			throw new CustomerEmailAlreadyExistsException("Customer with email [%s] already exists".formatted(email));
 		}
 		customer.setPassword(this.passwordEncoder.encode(customer.getPassword()));
-		return this.customerJpaRepository.save(customer);
+		customer = this.customerJpaRepository.save(customer);
+		return this.customerDTOMapper.apply(customer);
 		// if (this.customerJdbcRepository.existsByEmail(email)) {
 		// throw new CustomerEmailAlreadyExistsException("Customer with email [%s]
 		// already exists".formatted(email));
@@ -76,8 +82,9 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public Customer updateCustomer(Long id, Customer customer) {
-		Customer oldCustomer = this.readCustomerById(id);
+	public CustomerDTO updateCustomer(Long id, Customer customer) {
+		Customer oldCustomer = this.customerJpaRepository.findById(id)
+				.orElseThrow(() -> new CustomerNotFoundException("Customer with id [%s] not found".formatted(id)));
 		if (customer.getName() == null) {
 			customer.setName(oldCustomer.getName());
 		}
@@ -107,7 +114,8 @@ public class CustomerServiceImpl implements CustomerService {
 		// "Customer with email [%s] already exists".formatted(customer.getEmail()));
 		// }
 		customer.setId(oldCustomer.getId());
-		return this.customerJpaRepository.save(customer);
+		customer = this.customerJpaRepository.save(customer);
+		return this.customerDTOMapper.apply(customer);
 	}
 
 }

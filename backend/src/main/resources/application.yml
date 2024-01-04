@@ -5,7 +5,11 @@ server:
 
 cors:
   allowed-origins: "*"
-  allowed-methods: "*"  
+  allowed-methods: "*"
+  #allowed-headers: "Authorization"
+  allowed-headers: "*"
+  #exposed-headers: "Authorization"
+  exposed-headers: "*"  
   
 spring:
   datasource:

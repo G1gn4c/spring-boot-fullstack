@@ -4,14 +4,14 @@ import java.util.List;
 
 public interface CustomerService {
 
-	List<Customer> readCustomers();
+	List<CustomerDTO> readCustomers();
 
-	Customer readCustomerById(Long id);
+	CustomerDTO readCustomerById(Long id);
 
-	Customer createCustomer(Customer customer);
+	CustomerDTO createCustomer(Customer customer);
 
 	void deleteCustomerById(Long id);
 
-	Customer updateCustomer(Long id, Customer customer);
+	CustomerDTO updateCustomer(Long id, Customer customer);
 
 }

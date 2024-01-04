@@ -3,13 +3,14 @@ package com.gianluca.config;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
-public class WebMvcConfig implements WebMvcConfigurer {
+public class WebMvcConfig /* implements WebMvcConfigurer */ {
 
 	@Value("#{'${cors.allowed-origins}'.split(',')}")
 	private List<String> allowedOrigins;
@@ -17,11 +18,29 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	@Value("#{'${cors.allowed-methods}'.split(',')}")
 	private List<String> allowedMethods;
 
-	@Override
-	public void addCorsMappings(CorsRegistry registry) {
-		CorsRegistration corsRegistration = registry.addMapping("/api/**");
-		this.allowedOrigins.forEach(origin -> corsRegistration.allowedOrigins(origin));
-		this.allowedMethods.forEach(method -> corsRegistration.allowedMethods(method));
+	@Value("#{'${cors.allowed-headers}'.split(',')}")
+	private List<String> allowedHeaders;
+
+	@Value("#{'${cors.exposed-headers}'.split(',')}")
+	private List<String> exposedHeaders;
+
+//	@Override
+//	public void addCorsMappings(CorsRegistry registry) {
+//		CorsRegistration corsRegistration = registry.addMapping("/api/**");
+//		this.allowedOrigins.forEach(origin -> corsRegistration.allowedOrigins(origin));
+//		this.allowedMethods.forEach(method -> corsRegistration.allowedMethods(method));
+//	}
+
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOrigins(allowedOrigins);
+		configuration.setAllowedMethods(allowedMethods);
+		configuration.setAllowedHeaders(allowedHeaders);
+		configuration.setExposedHeaders(exposedHeaders);
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/api/**", configuration);
+		return source;
 	}
 
 }

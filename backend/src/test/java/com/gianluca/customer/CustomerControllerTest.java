@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -36,24 +37,31 @@ class CustomerControllerTest extends AbstractTestcontainersUnitTest {
 		String email = "%s.%s.%s@example.com".formatted(firstName, lastName, UUID.randomUUID());
 		Integer age = RANDOM.nextInt(1, 100);
 		Customer customer = new Customer(null, name, email, age, Gender.MALE, "password");
+		CustomerDTO expectedCustomerDTO = new CustomerDTO(null, name, email, age, Gender.MALE, List.of("ROLE_USER"),
+				email);
 
-		this.webTestClient.post().uri(CUSTOMER_URI).accept(MediaType.APPLICATION_JSON)
+		String authHeader = this.webTestClient.post().uri(CUSTOMER_URI).accept(MediaType.APPLICATION_JSON)
 				.contentType(MediaType.APPLICATION_JSON).body(Mono.just(customer), Customer.class).exchange()
-				.expectStatus().isOk();
+				.expectStatus().isOk().returnResult(CustomerDTO.class).getResponseHeaders()
+				.get(HttpHeaders.AUTHORIZATION).get(0);
 
-		List<Customer> customers = this.webTestClient.get().uri(CUSTOMER_URI).accept(MediaType.APPLICATION_JSON)
-				.exchange().expectStatus().isOk().expectBodyList(new ParameterizedTypeReference<Customer>() {
+		List<CustomerDTO> customers = this.webTestClient.get().uri(CUSTOMER_URI).accept(MediaType.APPLICATION_JSON)
+				.header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(authHeader)).exchange().expectStatus().isOk()
+				.expectBodyList(new ParameterizedTypeReference<CustomerDTO>() {
 				}).returnResult().getResponseBody();
 
-		assertThat(customers).usingRecursiveFieldByFieldElementComparatorIgnoringFields("id").contains(customer);
+		assertThat(customers).usingRecursiveFieldByFieldElementComparatorIgnoringFields("id")
+				.contains(expectedCustomerDTO);
 
 		Long id = customers.stream().filter(t -> t.getEmail().equals(email)).map(t -> t.getId()).findFirst()
 				.orElseThrow();
 		customer.setId(id);
+		expectedCustomerDTO.setId(id);
 
-		this.webTestClient.get().uri(CUSTOMER_URI + "/{id}", id).accept(MediaType.APPLICATION_JSON).exchange()
-				.expectStatus().isOk().expectBody(new ParameterizedTypeReference<Customer>() {
-				}).isEqualTo(customer);
+		this.webTestClient.get().uri(CUSTOMER_URI + "/{id}", id).accept(MediaType.APPLICATION_JSON)
+				.header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(authHeader)).exchange().expectStatus().isOk()
+				.expectBody(new ParameterizedTypeReference<CustomerDTO>() {
+				}).isEqualTo(expectedCustomerDTO);
 	}
 
 	@Test
@@ -69,17 +77,32 @@ class CustomerControllerTest extends AbstractTestcontainersUnitTest {
 				.contentType(MediaType.APPLICATION_JSON).body(Mono.just(customer), Customer.class).exchange()
 				.expectStatus().isOk();
 
-		List<Customer> customers = this.webTestClient.get().uri(CUSTOMER_URI).accept(MediaType.APPLICATION_JSON)
-				.exchange().expectStatus().isOk().expectBodyList(new ParameterizedTypeReference<Customer>() {
+		String firstName2 = FAKER.name().firstName();
+		String lastName2 = FAKER.name().lastName();
+		String name2 = "%s %s".formatted(firstName2, lastName2);
+		String email2 = "%s.%s.%s@example.com".formatted(firstName2, lastName2, UUID.randomUUID());
+		Integer age2 = RANDOM.nextInt(1, 100);
+		Customer customer2 = new Customer(null, name2, email2, age2, Gender.MALE, "password");
+
+		String authHeaderCustomerToGet = this.webTestClient.post().uri(CUSTOMER_URI).accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON).body(Mono.just(customer2), Customer.class).exchange()
+				.expectStatus().isOk().returnResult(CustomerDTO.class).getResponseHeaders()
+				.get(HttpHeaders.AUTHORIZATION).get(0);
+
+		List<CustomerDTO> customers = this.webTestClient.get().uri(CUSTOMER_URI).accept(MediaType.APPLICATION_JSON)
+				.header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(authHeaderCustomerToGet)).exchange()
+				.expectStatus().isOk().expectBodyList(new ParameterizedTypeReference<CustomerDTO>() {
 				}).returnResult().getResponseBody();
 
 		Long id = customers.stream().filter(t -> t.getEmail().equals(email)).map(t -> t.getId()).findFirst()
 				.orElseThrow();
 
-		this.webTestClient.delete().uri(CUSTOMER_URI + "/{id}", id).accept(MediaType.APPLICATION_JSON).exchange()
+		this.webTestClient.delete().uri(CUSTOMER_URI + "/{id}", id).accept(MediaType.APPLICATION_JSON)
+				.header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(authHeaderCustomerToGet)).exchange()
 				.expectStatus().isOk();
 
-		this.webTestClient.get().uri(CUSTOMER_URI + "/{id}", id).accept(MediaType.APPLICATION_JSON).exchange()
+		this.webTestClient.get().uri(CUSTOMER_URI + "/{id}", id).accept(MediaType.APPLICATION_JSON)
+				.header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(authHeaderCustomerToGet)).exchange()
 				.expectStatus().isNotFound();
 	}
 
@@ -96,23 +119,40 @@ class CustomerControllerTest extends AbstractTestcontainersUnitTest {
 				.contentType(MediaType.APPLICATION_JSON).body(Mono.just(customer), Customer.class).exchange()
 				.expectStatus().isOk();
 
-		List<Customer> customers = this.webTestClient.get().uri(CUSTOMER_URI).accept(MediaType.APPLICATION_JSON)
-				.exchange().expectStatus().isOk().expectBodyList(new ParameterizedTypeReference<Customer>() {
+		String firstName2 = FAKER.name().firstName();
+		String lastName2 = FAKER.name().lastName();
+		String name2 = "%s %s".formatted(firstName2, lastName2);
+		String email2 = "%s.%s.%s@example.com".formatted(firstName2, lastName2, UUID.randomUUID());
+		Integer age2 = RANDOM.nextInt(1, 100);
+		Customer customer2 = new Customer(null, name2, email2, age2, Gender.MALE, "password");
+
+		String authHeaderCustomerToGet = this.webTestClient.post().uri(CUSTOMER_URI).accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON).body(Mono.just(customer2), Customer.class).exchange()
+				.expectStatus().isOk().returnResult(CustomerDTO.class).getResponseHeaders()
+				.get(HttpHeaders.AUTHORIZATION).get(0);
+
+		List<CustomerDTO> customers = this.webTestClient.get().uri(CUSTOMER_URI).accept(MediaType.APPLICATION_JSON)
+				.header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(authHeaderCustomerToGet)).exchange()
+				.expectStatus().isOk().expectBodyList(new ParameterizedTypeReference<CustomerDTO>() {
 				}).returnResult().getResponseBody();
 
 		Long id = customers.stream().filter(t -> t.getEmail().equals(email)).map(t -> t.getId()).findFirst()
 				.orElseThrow();
 
 		Customer customerUpdated = new Customer(null, name + "2", email + "2", age - 1, Gender.FEMALE, "password");
+		CustomerDTO customerUpdatedDTO = new CustomerDTO(null, name + "2", email + "2", age - 1, Gender.FEMALE,
+				List.of("ROLE_USER"), email);
 
 		this.webTestClient.put().uri(CUSTOMER_URI + "/{id}", id).accept(MediaType.APPLICATION_JSON)
-				.contentType(MediaType.APPLICATION_JSON).body(Mono.just(customerUpdated), Customer.class).exchange()
+				.contentType(MediaType.APPLICATION_JSON).body(Mono.just(customerUpdated), Customer.class)
+				.header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(authHeaderCustomerToGet)).exchange()
 				.expectStatus().isOk();
 
 		customerUpdated.setId(id);
-		this.webTestClient.get().uri(CUSTOMER_URI + "/{id}", id).accept(MediaType.APPLICATION_JSON).exchange()
-				.expectStatus().isOk().expectBody(new ParameterizedTypeReference<Customer>() {
-				}).isEqualTo(customerUpdated);
+		this.webTestClient.get().uri(CUSTOMER_URI + "/{id}", id).accept(MediaType.APPLICATION_JSON)
+				.header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(authHeaderCustomerToGet)).exchange()
+				.expectStatus().isOk().expectBody(new ParameterizedTypeReference<CustomerDTO>() {
+				}).isEqualTo(customerUpdatedDTO);
 	}
 
 }

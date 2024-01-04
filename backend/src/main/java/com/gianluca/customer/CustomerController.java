@@ -30,29 +30,29 @@ public class CustomerController {
 	}
 
 	@GetMapping("")
-	public List<Customer> readCustomers() {
+	public List<CustomerDTO> readCustomers() {
 		return this.customerService.readCustomers();
 	}
 
 	@GetMapping("{id}")
-	public Customer readCustomerById(@PathVariable("id") Long id) {
+	public CustomerDTO readCustomerById(@PathVariable("id") Long id) {
 		return this.customerService.readCustomerById(id);
 	}
 
 	@PostMapping("")
-	public ResponseEntity<Customer> createCustomer(@RequestBody Customer customer) {
-		customer = this.customerService.createCustomer(customer);
+	public ResponseEntity<CustomerDTO> createCustomer(@RequestBody Customer customer) {
+		CustomerDTO customerDTO = this.customerService.createCustomer(customer);
 		String jwtToken = jwtUtil.issueToken(customer.getEmail(), "ROLE_USER");
-		return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, jwtToken).body(customer);
+		return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, jwtToken).body(customerDTO);
 	}
-	
+
 	@DeleteMapping("{id}")
 	public void deleteCustomerById(@PathVariable("id") Long id) {
 		this.customerService.deleteCustomerById(id);
 	}
 
 	@PutMapping("{id}")
-	public Customer updateCustomer(@PathVariable("id") Long id, @RequestBody Customer customer) {
+	public CustomerDTO updateCustomer(@PathVariable("id") Long id, @RequestBody Customer customer) {
 		return this.customerService.updateCustomer(id, customer);
 	}
 

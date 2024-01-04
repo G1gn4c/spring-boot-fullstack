@@ -2,6 +2,7 @@ package com.gianluca.customer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,10 +35,12 @@ class CustomerServiceImplTest {
 	@Mock
 	private PasswordEncoder passwordEncoder;
 
+	private CustomerDTOMapper customerDTOMapper = new CustomerDTOMapper();
+
 	@BeforeEach
 	void setUp() throws Exception {
 		this.customerServiceImpl = new CustomerServiceImpl(customerJpaRepository, customerJdbcRepository,
-				passwordEncoder);
+				passwordEncoder, customerDTOMapper);
 	}
 
 	@Test
@@ -56,11 +59,13 @@ class CustomerServiceImplTest {
 		Customer customer = new Customer(id, "Gianluca", "gianluca@example.com", 30, Gender.MALE, "password");
 		when(this.customerJpaRepository.findById(id)).thenReturn(Optional.of(customer));
 
+		CustomerDTO expected = this.customerDTOMapper.apply(customer);
+
 		// When
-		Customer actual = this.customerServiceImpl.readCustomerById(id);
+		CustomerDTO actual = this.customerServiceImpl.readCustomerById(id);
 
 		// Then
-		assertThat(actual).isEqualTo(customer);
+		assertThat(actual).isEqualTo(expected);
 	}
 
 	@Test
@@ -83,6 +88,7 @@ class CustomerServiceImplTest {
 		when(this.customerJpaRepository.existsByEmail(customer.getEmail())).thenReturn(false);
 		String hashPassword = "qwertyuiop";
 		when(this.passwordEncoder.encode(customer.getPassword())).thenReturn(hashPassword);
+		when(this.customerJpaRepository.save(any())).thenReturn(customer);
 
 		// When
 		this.customerServiceImpl.createCustomer(customer);
@@ -156,6 +162,9 @@ class CustomerServiceImplTest {
 		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30, Gender.MALE, "password");
 		when(this.customerJpaRepository.findById(id)).thenReturn(Optional.of(oldCustomer));
 		when(this.customerJpaRepository.existsByIdNotAndEmail(id, oldCustomer.getEmail())).thenReturn(false);
+		
+		Customer customerToSave = new Customer(id, "Gianluca2", "gianluca@example.com", 30, Gender.MALE, "password");
+		when(this.customerJpaRepository.save(any())).thenReturn(customerToSave);
 
 		// When
 		this.customerServiceImpl.updateCustomer(id, customer);
@@ -180,6 +189,9 @@ class CustomerServiceImplTest {
 		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30, Gender.MALE, "password");
 		when(this.customerJpaRepository.findById(id)).thenReturn(Optional.of(oldCustomer));
 		when(this.customerJpaRepository.existsByIdNotAndEmail(id, customer.getEmail())).thenReturn(false);
+		
+		Customer customerToSave = new Customer(id, "Gianluca", "gianluca@gmail.com", 30, Gender.MALE, "password");
+		when(this.customerJpaRepository.save(any())).thenReturn(customerToSave);
 
 		// When
 		this.customerServiceImpl.updateCustomer(id, customer);
@@ -204,6 +216,9 @@ class CustomerServiceImplTest {
 		Customer oldCustomer = new Customer(id, "Gianluca", "gianluca@example.com", 30, Gender.MALE, "password");
 		when(this.customerJpaRepository.findById(id)).thenReturn(Optional.of(oldCustomer));
 		when(this.customerJpaRepository.existsByIdNotAndEmail(id, oldCustomer.getEmail())).thenReturn(false);
+		
+		Customer customerToSave = new Customer(id, "Gianluca", "gianluca@example.com", 31, Gender.MALE, "password");
+		when(this.customerJpaRepository.save(any())).thenReturn(customerToSave);
 
 		// When
 		this.customerServiceImpl.updateCustomer(id, customer);
