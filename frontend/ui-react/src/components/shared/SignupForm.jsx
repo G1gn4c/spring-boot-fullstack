@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 import { Formik, Form, useField } from 'formik';
 import * as Yup from 'yup';
 import { Alert, AlertIcon, Box, Button, FormLabel, Input, Select, Stack } from '@chakra-ui/react';
-import { createCustomer } from '../services/client';
-import { errorNotification, successNotification } from '../services/notification';
+import { createCustomer } from '../../services/client';
+import { errorNotification, successNotification } from '../../services/notification';
 
 const MyTextInput = ({ label, ...props }) => {
     // useField() returns [formik.getFieldProps(), formik.getFieldMeta()]
@@ -42,7 +42,7 @@ const MySelect = ({ label, ...props }) => {
 };
 
 // And now we can use these
-const SignupForm = ({ fetchCustomers, onClose }) => {
+const SignupForm = ({ onSuccess, onClose }) => {
     return (
         <>
             <Formik
@@ -82,7 +82,7 @@ const SignupForm = ({ fetchCustomers, onClose }) => {
                             console.log(res);
                             successNotification("Customer saved", `${values.name} was successfully saved`);
                             onClose();
-                            fetchCustomers();
+                            onSuccess(res.headers["authorization"]);
                         })
                         .catch(err => {
                             console.log(err);

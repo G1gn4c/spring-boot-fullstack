@@ -10,7 +10,7 @@ import {
     useDisclosure,
     Input,
 } from '@chakra-ui/react'
-import SignupForm from './SignupForm';
+import SignupForm from './shared/SignupForm';
 
 let AddIcon = () => {
     return "+";
@@ -39,7 +39,7 @@ export default function DrawerForm({ fetchCustomers }) {
 
                     <DrawerBody>
                         <SignupForm
-                            fetchCustomers={fetchCustomers}
+                            onSuccess={fetchCustomers}
                             onClose={onClose}
                         >
                         </SignupForm>
@@ -55,7 +55,7 @@ export default function DrawerForm({ fetchCustomers }) {
                         </Button>
                     </DrawerFooter>
                 </DrawerContent>
-            </Drawer>
+            </Drawer >
         </>
     );
 }

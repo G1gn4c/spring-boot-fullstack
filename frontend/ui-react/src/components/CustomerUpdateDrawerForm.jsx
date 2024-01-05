@@ -10,7 +10,7 @@ import {
     useDisclosure,
     Input,
 } from '@chakra-ui/react'
-import SignupForm from './SignupForm';
+import SignupForm from './shared/SignupForm';
 import CustomerUpdateSignupForm from './CustomerUpdateSignupForm';
 
 let AddIcon = () => {

@@ -12,6 +12,7 @@ import {
     Box,
     Alert,
     AlertIcon,
+    Link,
 } from '@chakra-ui/react'
 import { Form, Formik, useField } from 'formik';
 import * as Yup from 'yup';
@@ -119,6 +120,9 @@ export default function Login() {
                 <Stack spacing={4} w={'full'} maxW={'md'}>
                     <Heading fontSize={'2xl'} mb={15}>Sign in to your account</Heading>
                     <LoginForm></LoginForm>
+                    <Link color={"blue.500"} href='/signup'>
+                        Don't have an account? Signup now
+                    </Link>
                 </Stack>
             </Flex>
             <Flex flex={1}>
