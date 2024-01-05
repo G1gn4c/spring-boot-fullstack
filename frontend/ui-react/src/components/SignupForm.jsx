@@ -51,6 +51,7 @@ const SignupForm = ({ fetchCustomers, onClose }) => {
                     email: '',
                     age: 0,
                     gender: '',
+                    password: ""
                 }}
                 validationSchema={Yup.object({
                     name: Yup.string()
@@ -68,6 +69,10 @@ const SignupForm = ({ fetchCustomers, onClose }) => {
                             ['MALE', 'FEMALE'],
                             'Invalid gender'
                         )
+                        .required('Required'),
+                    password: Yup.string()
+                        .min(4, "Must be at least 4")
+                        .max(15, 'Must be 15 characters or less')
                         .required('Required'),
                 })}
                 onSubmit={(values, { setSubmitting }) => {
@@ -111,6 +116,13 @@ const SignupForm = ({ fetchCustomers, onClose }) => {
                                     name="age"
                                     type="number"
                                     placeholder="18"
+                                />
+
+                                <MyTextInput
+                                    label="Password"
+                                    name="password"
+                                    type="password"
+                                    placeholder="Type in the password"
                                 />
 
                                 <MySelect label="Gender" name="gender">
